@@ -18,7 +18,21 @@ void    ft_filerror(char *filename)
     exit(EXIT_FAILURE);
 }
 
-void    ft_exit_error(char *error_cause)
+void	ft_cmderror(char *cmd)
 {
-    exit(EXIT_FAILURE);
+  printf("-bash: %s: command not found\n", cmd);
+}
+
+void	ft_malloc_error(t_pipex *pipex)
+{
+  perror("malloc");
+  ft_free_pipex(pipex);
+  exit(EXIT_FAILURE);
+}
+
+void    ft_exit_error(char *error_cause, t_pipex *pipex)
+{
+  perror(error_cause);
+  ft_free_pipex(pipex);
+  exit(EXIT_FAILURE);
 }

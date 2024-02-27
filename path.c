@@ -25,44 +25,9 @@ void    ft_free(char **s)
     }
 }
 
-
-char **ft_paths(char *cmds[], char **envp, int tot_cmds)
+int ft_absolute_path(char *cmd)
 {
-    char **paths;
-    int i;
-
-    paths = NULL;
-    i = -1;
-    
-    if (ft_all_absolute(cmds, tot_cmds))
-        return (NULL);
-    while (*envp)
-    {
-        if (!ft_strncmp(*envp, "PATH=", 5))
-        {    
-            paths = ft_split(&(*envp)[5], ':');
-            if (!paths)
-                exit(EXIT_FAILURE);
-            return (paths);
-        }
-        envp++;
-    }
-    return (paths);
-    
-}
-
-int ft_all_absolute(char *cmds[], int tot_cmds)
-{
-    int i;
-
-    i = -1;
-    while (++i < tot_cmds)
-    {
-        if (!ft_strncmp(cmds[i], "/", 1) || !ft_strncmp(cmds[i], "./", 2))
-            continue ;
-        else
-            return (0);
-    }
+  if (!ft_strncmp(cmd, "/", 1) || !ft_strncmp(cmd, "./", 2))
     return (1);
+  return (0);
 }
-

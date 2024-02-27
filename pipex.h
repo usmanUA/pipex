@@ -17,16 +17,47 @@
 #include "libft/libft.h"
 #include "stdio.h"
 #include "fcntl.h"
+#include "sys/wait.h"
 
-void    ft_execute(int tot_cmds, char **args, char **envp, int fd);
-void    ft_child(char **cmds, int *fds);
-void    ft_parent(char **cmds, int *fds, char *filename);
-int ft_all_absolute(char *cmds[], int tot_cmds);
+typedef enum e_bool
+{
+  false,
+  true
+}	t_bool;
+
+typedef struct s_pipex
+{
+  int fd_in;
+  int fd_out;
+  char **cmds;
+  char ***cmd_args;
+  t_bool here_doc;
+  t_bool bonus;
+  int tot_cmds;
+}	t_pipex;
+
+void    ft_free(char **s);
+void    ft_free_pipex(t_pipex *pipex);
+void    ft_initialize_pipex(t_pipex *pipex, int tot_cmds);
+
+void    ft_execute(t_pipex *pipex);
+void    ft_child(t_pipex *pipex, int *fds);
+void    ft_parent(t_pipex *pipex, int *fds);
+int ft_absolute_path(char *cmd);
 char **ft_paths(char *cmds[], char **envp, int tot_cmds);
 void    ft_free(char **s);
 
+void    ft_validate_files(int argc, char **args, t_pipex *pipex);
+char    *ft_give_path(char **envp);
+void	ft_save_commands(char **args, char **envp, t_pipex *pipex);
+char    *ft_valid_command(char *arg, char ***paths, t_pipex *pipex);
+char    *ft_join_path(char *path, char *arg, t_pipex *pipex);
+void	ft_save_args(char **args, t_pipex *pipex);
+
 
 void    ft_filerror(char *filename);
-void    ft_exit_error(char *error_cause);
+void    ft_malloc_error(t_pipex *pipex);
+void    ft_cmderror(char *cmd);
+void    ft_exit_error(char *error_cause, t_pipex *pipex);
 
 #endif

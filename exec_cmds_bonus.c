@@ -20,44 +20,47 @@ void    ft_execute(t_pipex *pipex)
     
     pips = pipe(fds);
     if (pips == -1)
-      ft_exit_error("pipe", pipex);
+        ft_exit_error("pipe");
     pid = fork();
     if (pid == -1)
-      ft_exit_error("fork", pipex);
+        ft_exit_error("fork");
     dup2(pipex->fd_in, STDIN_FILENO);
     close(pipex->fd_in);
     if (pid == 0)
-      ft_child(pipex, fds);
+      ft_child(ft_command(paths, args[2]), fds);
     else
-      ft_parent(pipex, fds);
+      ft_parent(ft_command(paths, args[3]), fds, args[tot_cmds+3]);
 }
 
-void    ft_child(t_pipex *pipex, int *fds)
+void    ft_child(char **cmds, int *fds)
 {
     close(fds[0]);
     dup2(fds[1], STDOUT_FILENO);
     close(fds[1]);
-    execve(pipex->cmds[0], pipex->cmd_args[0], NULL);
-    ft_exit_error("execve", pipex);
+    execve(cmds[0], cmds, NULL);
+    ft_exit_error("execve");
 }
 
-void    ft_parent(t_pipex *pipex, int *fds)
+void    ft_parent(char **cmds, int *fds, char *filename)
 {
     pid_t pid;
     int fd;
 
     pid = fork();
     if (pid == -1)
-      ft_exit_error("fork", pipex);
+        ft_exit_error("fork");
+    fd = open(filename, O_RDONLY);
+    if (fd == -1)
+        ft_filerror(filename);
     if (pid == 0)
     {
         close(fds[1]);
         dup2(fds[0], STDIN_FILENO);
         close(fds[0]);
-        dup2(pipex->fd_out, STDOUT_FILENO);
-        close(pipex->fd_out);
-        execve(pipex->cmds[1], pipex->cmd_args[1], NULL);
-        ft_exit_error("execve", pipex);
+        dup2(fd, STDOUT_FILENO);
+        close(fd);
+        execve(cmds[0], cmds, NULL);
+        ft_exit_error("execve");
     }
     else
         waitpid(pid, NULL, 0);

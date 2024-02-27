@@ -1,5 +1,4 @@
 /* ************************************************************************** */
-/*                                                                            */
 /*                                                        :::      ::::::::   */
 /*   pipex.c                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
@@ -12,16 +11,44 @@
 
 #include "pipex.h"
 
+void	ft_free_pipex(t_pipex *pipex)
+{
+  if (pipex->cmds)
+    ft_free(pipex->cmds);
+  if (pipex->cmd_args)
+    {
+      while (*pipex->cmd_args)
+	{
+	  ft_free(*pipex->cmd_args);
+	  pipex->cmd_args++;
+	}
+    }
+}
+
+void	ft_initialize_pipex(t_pipex *pipex, int tot_cmds)
+{
+  pipex->here_doc = false;
+  pipex->bonus = false;
+  pipex->fd_in = 0;
+  pipex->fd_out = 0;
+  pipex->cmds = 0;
+  pipex->cmd_args = 0;
+  pipex->tot_cmds = tot_cmds;
+}
+
 int main(int argc, char *argv[], char **envp)
 {
-    int fd;
+    t_pipex pipex;
     
     if (argc > 1)
     {
-        fd = open(argv[1], O_RDONLY);
-        if (fd == -1)
-            ft_filerror(argv[1]);
-        ft_execute(argc - 3, &argv[2], envp, fd);
+      	ft_initialize_pipex(&pipex, argc - 3);
+	      ft_validate_files(argc-1, argv, &pipex);
+        ft_save_commands(argv, envp, &pipex);
+        write(1, "validated\n", 10);
+        ft_save_args(argv, &pipex);
+        ft_execute(&pipex);
+        ft_free_pipex(&pipex);
     }
     return (0);
 }
