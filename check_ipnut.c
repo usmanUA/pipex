@@ -1,4 +1,14 @@
-
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   check_ipnut.c                                      :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: uahmed <uahmed@student.hive.fi>            +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2024/02/27 12:05:21 by uahmed            #+#    #+#             */
+/*   Updated: 2024/02/27 14:07:14 by uahmed           ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
 
 #include "pipex.h"
 
@@ -16,6 +26,7 @@ char	*ft_give_path(char **envp)
 {
   char *path;
 
+  path = NULL;
   while (*envp)
     {
       if (!ft_strncmp(*envp, "PATH=", 5))
@@ -24,84 +35,80 @@ char	*ft_give_path(char **envp)
         break ;
       }
       envp++;
-    }  
+    }
   return (&path[5]);
 }
 
 void	ft_save_commands(char **args, char **envp, t_pipex *pipex)
 {
-  char **paths;
   int i;
-  char *cmd;
-  char **temp;
+  char **cmd;
 
   i = -1;
+  cmd = NULL;
   pipex->cmds = (char **)malloc(pipex->tot_cmds * sizeof(char *) + 1);
-  paths = ft_split(ft_give_path(envp), ':');
+  pipex->paths = ft_split(ft_give_path(envp), ':');
   while (++i < pipex->tot_cmds)
     {
-      cmd = ft_split(args[i+2], ' ')[0];
-      if (ft_absolute_path(cmd))
+      cmd = ft_split(args[i+2], ' ');
+      if (ft_absolute_path(cmd[0]))
       {
-        // write(1, "here\n", 5);
-        if (!access(cmd, F_OK | X_OK))
-          pipex->cmds[i] = cmd;
+        if (!access(cmd[0], F_OK | X_OK))
+          pipex->cmds[i] = cmd[0];
         else
           {
             pipex->cmds[i] = NULL;
-            ft_cmderror(cmd);
+            ft_cmderror(cmd[0]);
           }
+        ft_free(cmd);
       }
       else
-      {
-        // write(1, "here\n", 5);
-	      pipex->cmds[i] = ft_valid_command(cmd, &paths, pipex);
-      }
+	      pipex->cmds[i] = ft_valid_command(&cmd, pipex);
     }
   pipex->cmds[pipex->tot_cmds] = NULL;
 }
 
-char	*ft_valid_command(char *arg, char ***paths, t_pipex *pipex)
+char	*ft_valid_command(char ***cmd, t_pipex *pipex)
 {
-  char *cmd;
+  char *cmd_path;
   int i;
-  int flag;
 
-  i = -1;
-  flag = 0;
-  while (*(paths)[++i])
+  i = 0;
+  cmd_path = NULL;
+  while (pipex->paths[i])
     {
-      cmd = ft_join_path(*(paths)[i], arg, pipex);
-      printf("final cmd: %s\n", cmd);
-      if (!access(cmd, F_OK | X_OK))
-      {
-        flag = 0;
-        write(1, "here\n", 5);
-        ft_free(*paths);
-        return (cmd);
-      }
+      cmd_path = ft_join_path(pipex->paths[i], cmd, pipex);
+      i++;
+      if (!access(cmd_path, F_OK | X_OK))
+        return (cmd_path);
+      if (pipex->paths[i])
+        free(cmd_path);
     }
-    if (flag)
-    {
-      ft_cmderror(cmd);
-      free(cmd);
-      cmd = NULL;
-    }
-  ft_free(*paths);
+  if (cmd_path)
+  {
+    ft_cmderror(cmd_path);
+    free(cmd_path);
+  }
   return (NULL);
 }
 
-char	*ft_join_path(char *path, char *arg, t_pipex *pipex)
+char	*ft_join_path(char *path, char ***cmd, t_pipex *pipex)
 {
-  char *half_cmd;
-  char *cmd;
+  char *path_to_cmd;
+  char *cmd_path;
 
-  half_cmd = ft_strjoin(path, "/");
-  if (!half_cmd)
+  path_to_cmd = ft_strjoin(path, "/");
+  if (!path_to_cmd)
     ft_malloc_error(pipex);
-  cmd = ft_strjoin(half_cmd, arg);
-  if (!cmd)
+  cmd_path = ft_strjoin(path_to_cmd, (*cmd)[0]);
+  if (!cmd_path)
+  {
+    ft_free(*cmd);
+    free(path_to_cmd);
     ft_malloc_error(pipex);
-  free(half_cmd);
-  return (cmd);
+  }
+  // ft_free(*cmd);
+  if (path_to_cmd)
+    free(path_to_cmd);
+  return (cmd_path);
 }

@@ -6,7 +6,7 @@
 /*   By: uahmed <uahmed@student.hive.fi>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/22 10:49:17 by uahmed            #+#    #+#             */
-/*   Updated: 2024/02/22 13:03:14 by uahmed           ###   ########.fr       */
+/*   Updated: 2024/02/27 14:05:57 by uahmed           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,6 +29,7 @@ typedef struct s_pipex
 {
   int fd_in;
   int fd_out;
+  char **paths;
   char **cmds;
   char ***cmd_args;
   t_bool here_doc;
@@ -50,8 +51,8 @@ void    ft_free(char **s);
 void    ft_validate_files(int argc, char **args, t_pipex *pipex);
 char    *ft_give_path(char **envp);
 void	ft_save_commands(char **args, char **envp, t_pipex *pipex);
-char    *ft_valid_command(char *arg, char ***paths, t_pipex *pipex);
-char    *ft_join_path(char *path, char *arg, t_pipex *pipex);
+char    *ft_valid_command(char ***cmd, t_pipex *pipex);
+char    *ft_join_path(char *path, char ***cmd, t_pipex *pipex);
 void	ft_save_args(char **args, t_pipex *pipex);
 
 
