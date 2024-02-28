@@ -3,7 +3,7 @@
 #read from stdin
 while read line
 do
-    echo "$line"
+  echo "$line"
 done
 
 echo "Some more text"

@@ -6,7 +6,7 @@
 /*   By: uahmed <uahmed@student.hive.fi>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/22 10:49:17 by uahmed            #+#    #+#             */
-/*   Updated: 2024/02/28 13:24:35 by uahmed           ###   ########.fr       */
+/*   Updated: 2024/02/28 15:54:05 by uahmed           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,11 +27,10 @@ typedef enum e_bool
 
 typedef struct s_pipex
 {
-
 	int		fd_in;
 	int		fd_out;
 	char	**paths;
-	char	***temp_cmds;
+	// char	***temp_cmds;
 	char	**cmds;
 	char	***cmd_args;
 	t_bool	here_doc;
@@ -57,8 +56,8 @@ void		ft_free(char **s);
 void		ft_validate_files(int argc, char **args, t_pipex *pipex);
 char		*ft_give_path(char **envp);
 void		ft_save_commands(char **args, char **envp, t_pipex *pipex);
-char		*ft_valid_command(t_pipex *pipex, char **temp_cmds);
-char		*ft_join_path(char *path, t_pipex *pipex, char **temp_cmds);
+char		*ft_valid_command(t_pipex *pipex, int i);
+char		*ft_join_path(char *path, t_pipex *pipex, int i);
 void		ft_save_args(char **args, t_pipex *pipex);
 
 void		ft_filerror(char *filename);
