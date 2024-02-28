@@ -56,10 +56,8 @@ void	ft_initialize_pipex(t_pipex *pipex, int tot_cmds)
 void	ft_print_pipex(t_pipex *pipex)
 {
 	int i;
-	int j;
 
 	i = -1;
-	j = -1;
 	while (pipex->cmds[++i])
 		printf("cmd in PIPEX: %s\n", pipex->cmds[i]);
 	i = -1;
@@ -83,11 +81,7 @@ void	ft_print_args(int argc, char **args)
 int	main(int argc, char *argv[], char **envp)
 {
 	t_pipex	pipex;
-	char	**cm;
-	char	***cmds;
 
-	cm = NULL;
-	cmds = NULL;
 	// ft_print_args(argc, argv);
 	if (argc > 1)
 	{
