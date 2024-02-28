@@ -27,6 +27,7 @@ typedef enum e_bool
 
 typedef struct s_pipex
 {
+
 	int		fd_in;
 	int		fd_out;
 	char	**paths;
