@@ -14,17 +14,20 @@
 
 void	ft_free_pipex(t_pipex *pipex)
 {
+  int ind;
+
+  ind = -1;
+  if (pipex->temp_cmds)
+    ft_free(pipex->temp_cmds);
   if (pipex->paths)
     ft_free(pipex->paths);
   if (pipex->cmds)
     ft_free(pipex->cmds);
   if (pipex->cmd_args)
     {
-      while (*pipex->cmd_args)
-      {
-        ft_free(*pipex->cmd_args);
-        pipex->cmd_args++;
-      }
+      while (pipex->cmd_args[++ind])
+        ft_free(pipex->cmd_args[ind]);
+      free(pipex->cmd_args);
     }
 }
 
@@ -35,6 +38,7 @@ void	ft_initialize_pipex(t_pipex *pipex, int tot_cmds)
   pipex->fd_in = 0;
   pipex->fd_out = 0;
   pipex->paths = NULL;
+  pipex->temp_cmds = NULL;
   pipex->cmds = NULL;
   pipex->cmd_args = NULL;
   pipex->tot_cmds = tot_cmds;
@@ -51,7 +55,7 @@ int main(int argc, char *argv[], char **envp)
     if (argc > 1)
     {
       	ft_initialize_pipex(&pipex, argc - 3);
-	      ft_validate_files(argc - 1, argv, &pipex);
+	ft_validate_files(argc - 1, argv, &pipex);
         ft_save_commands(argv, envp, &pipex);
         ft_save_args(argv, &pipex);
         ft_execute(&pipex);

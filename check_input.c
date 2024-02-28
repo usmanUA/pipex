@@ -42,33 +42,31 @@ char	*ft_give_path(char **envp)
 void	ft_save_commands(char **args, char **envp, t_pipex *pipex)
 {
   int i;
-  char **cmd;
 
   i = -1;
-  cmd = NULL;
-  pipex->cmds = (char **)malloc(pipex->tot_cmds * sizeof(char *) + 1);
+  pipex->cmds = (char **)malloc((pipex->tot_cmds + 1) * sizeof(char *));
   pipex->paths = ft_split(ft_give_path(envp), ':');
   while (++i < pipex->tot_cmds)
     {
-      cmd = ft_split(args[i+2], ' ');
-      if (ft_absolute_path(cmd[0]))
+      pipex->temp_cmds = ft_split(args[i+2], ' ');
+      if (ft_absolute_path(pipex->temp_cmds[0]))
       {
-        if (!access(cmd[0], F_OK | X_OK))
-          pipex->cmds[i] = cmd[0];
+        if (!access(pipex->temp_cmds[0], F_OK | X_OK))
+          pipex->cmds[i] = pipex->temp_cmds[0];
         else
           {
             pipex->cmds[i] = NULL;
-            ft_cmderror(cmd[0]);
+            ft_cmderror(pipex->temp_cmds[0]);
           }
-        ft_free(cmd);
+        ft_free(pipex->temp_cmds);
       }
       else
-	      pipex->cmds[i] = ft_valid_command(&cmd, pipex);
+	      pipex->cmds[i] = ft_valid_command(pipex);
     }
   pipex->cmds[pipex->tot_cmds] = NULL;
 }
 
-char	*ft_valid_command(char ***cmd, t_pipex *pipex)
+char	*ft_valid_command(t_pipex *pipex)
 {
   char *cmd_path;
   int i;
@@ -77,7 +75,7 @@ char	*ft_valid_command(char ***cmd, t_pipex *pipex)
   cmd_path = NULL;
   while (pipex->paths[i])
     {
-      cmd_path = ft_join_path(pipex->paths[i], cmd, pipex);
+      cmd_path = ft_join_path(pipex->paths[i], pipex);
       i++;
       if (!access(cmd_path, F_OK | X_OK))
         return (cmd_path);
@@ -92,22 +90,20 @@ char	*ft_valid_command(char ***cmd, t_pipex *pipex)
   return (NULL);
 }
 
-char	*ft_join_path(char *path, char ***cmd, t_pipex *pipex)
+char	*ft_join_path(char *path, t_pipex *pipex)
 {
   char *path_to_cmd;
   char *cmd_path;
 
   path_to_cmd = ft_strjoin(path, "/");
   if (!path_to_cmd)
-    ft_malloc_error(pipex);
-  cmd_path = ft_strjoin(path_to_cmd, (*cmd)[0]);
+      ft_malloc_error(pipex);
+  cmd_path = ft_strjoin(path_to_cmd, pipex->temp_cmds[0]);
   if (!cmd_path)
   {
-    ft_free(*cmd);
     free(path_to_cmd);
     ft_malloc_error(pipex);
   }
-  // ft_free(*cmd);
   if (path_to_cmd)
     free(path_to_cmd);
   return (cmd_path);

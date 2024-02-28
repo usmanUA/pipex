@@ -20,10 +20,8 @@ void    ft_free(char **s)
     if (s)
     {
         while (s[++i])
-        {
-          if (s[i])
             free(s[i]);
-        }
+	free(s);
     }
 }
 
