@@ -12,27 +12,27 @@
 
 #include "pipex.h"
 
-void	ft_filerror(char *filename)
+void    ft_filerror(char *filename)
 {
-	printf("zsh: no such file or directory: %s\n", filename);
-	exit(EXIT_FAILURE);
+    printf("zsh: no such file or directory: %s\n", filename);
+    exit(EXIT_FAILURE);
 }
 
 void	ft_cmderror(char *cmd)
 {
-	printf("-bash: %s: command not found\n", cmd);
+  printf("-bash: %s: command not found\n", cmd);
 }
 
 void	ft_malloc_error(t_pipex *pipex)
 {
-	perror("malloc");
-	ft_free_pipex(pipex);
-	exit(EXIT_FAILURE);
+  perror("malloc");
+  ft_free_pipex(pipex);
+  exit(EXIT_FAILURE);
 }
 
-void	ft_exit_error(char *error_cause, t_pipex *pipex)
+void    ft_exit_error(char *error_cause, t_pipex *pipex)
 {
-	perror(error_cause);
-	ft_free_pipex(pipex);
-	exit(EXIT_FAILURE);
+  perror(error_cause);
+  ft_free_pipex(pipex);
+  exit(EXIT_FAILURE);
 }
