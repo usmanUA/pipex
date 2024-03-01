@@ -6,7 +6,7 @@
 /*   By: uahmed <uahmed@student.hive.fi>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/22 11:00:17 by uahmed            #+#    #+#             */
-/*   Updated: 2024/02/22 12:55:39 by uahmed           ###   ########.fr       */
+/*   Updated: 2024/03/01 16:38:29 by uahmed           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,18 +14,13 @@
 
 void	ft_filerror(char *filename)
 {
-	printf("zsh: no such file or directory: %s\n", filename);
+	printf("pipex: no such file or directory: %s\n", filename);
 	exit(EXIT_FAILURE);
 }
 
-void	ft_cmderror(char *cmd)
+void	ft_cmd_error_exit(char *cmd, t_pipex *pipex)
 {
-	printf("-bash: %s: command not found\n", cmd);
-}
-
-void	ft_malloc_error(t_pipex *pipex)
-{
-	perror("malloc");
+	printf("pipex:  command not found: %s\n", cmd);
 	ft_free_pipex(pipex);
 	exit(EXIT_FAILURE);
 }

@@ -6,7 +6,7 @@
 /*   By: uahmed <uahmed@student.hive.fi>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/27 12:05:21 by uahmed            #+#    #+#             */
-/*   Updated: 2024/02/28 15:54:40 by uahmed           ###   ########.fr       */
+/*   Updated: 2024/03/01 17:05:06 by uahmed           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,39 +39,43 @@ char	*ft_give_path(char **envp)
 	return (&path[5]);
 }
 
+void	ft_malloc_struct(t_pipex *pipex, char ***cmds, char ****cmd_args)
+{
+	*cmds = (char **)malloc((pipex->tot_cmds + 1) * sizeof(char *));
+	if (!(*cmds))
+		ft_exit_error("malloc", pipex);
+	*cmd_args = (char ***)malloc((pipex->tot_cmds + 1) * sizeof(char **));
+	if (!(*cmd_args))
+		ft_exit_error("malloc", pipex);
+}
+
 void	ft_save_commands(char **args, char **envp, t_pipex *pipex)
 {
-	int	i;
-
-	i = -1;
-	pipex->cmds = (char **)malloc((pipex->tot_cmds + 1) * sizeof(char *));
-	if (!pipex->cmds)
-		ft_malloc_error(pipex);
-	pipex->cmd_args = (char ***)malloc((pipex->tot_cmds + 1) * sizeof(char **));
-	if (!pipex->cmd_args)
-		ft_malloc_error(pipex);
+	if (pipex->here_doc)
+		pipex->idx = 1;
+	ft_malloc_struct(pipex, &pipex->cmds, &pipex->cmd_args);
 	pipex->paths = ft_split(ft_give_path(envp), ':');
-	while (++i < pipex->tot_cmds)
+	while (++pipex->idx < pipex->tot_cmds)
 	{
-		pipex->cmd_args[i] = ft_split(args[i + 2], ' ');
-		if (ft_absolute_path(pipex->cmd_args[i][0]))
+		pipex->cmd_args[pipex->idx] = ft_split(args[pipex->idx + 2], ' ');
+		if (ft_absolute_path(pipex->cmd_args[pipex->idx][0]))
 		{
-			if (!access(pipex->cmd_args[i][0], F_OK | X_OK))
-				pipex->cmds[i] = pipex->cmd_args[i][0];
+			if (!access(pipex->cmd_args[pipex->idx][0], F_OK | X_OK))
+				pipex->cmds[pipex->idx] = ft_strdup(pipex->cmd_args[pipex->idx][0]);
 			else
 			{
-				pipex->cmds[i] = NULL;
-				ft_cmderror(pipex->cmd_args[i][0]);
+				pipex->cmds[pipex->idx] = NULL;
+				ft_cmd_error_exit(pipex->cmd_args[pipex->idx][0], pipex);
 			}
 		}
 		else
-			pipex->cmds[i] = ft_valid_command(pipex, i);
+			ft_valid_command(pipex, pipex->idx);
 	}
-	pipex->cmds[i] = NULL;
-	pipex->cmd_args[i] = NULL;	
+	pipex->cmds[pipex->idx] = NULL;
+	pipex->cmd_args[pipex->idx] = NULL;	
 }
 
-char	*ft_valid_command(t_pipex *pipex, int index)
+void	ft_valid_command(t_pipex *pipex, int index)
 {
 	char	*cmd_path;
 	int		i;
@@ -83,16 +87,15 @@ char	*ft_valid_command(t_pipex *pipex, int index)
 		cmd_path = ft_join_path(pipex->paths[i], pipex, index);
 		i++;
 		if (!access(cmd_path, F_OK | X_OK))
-			return (cmd_path);
-		if (pipex->paths[i])
-			free(cmd_path);
-	}
-	if (cmd_path)
-	{
-		ft_cmderror(cmd_path);
+		{
+			pipex->cmds[index] = cmd_path;
+			return ;
+		}
 		free(cmd_path);
 	}
-	return (NULL);
+	pipex->cmd_args[index+1] = NULL;
+	pipex->cmds[index] = NULL;
+	ft_cmd_error_exit(pipex->cmd_args[index][0], pipex);
 }
 
 char	*ft_join_path(char *path, t_pipex *pipex, int index)
@@ -102,12 +105,12 @@ char	*ft_join_path(char *path, t_pipex *pipex, int index)
 
 	path_to_cmd = ft_strjoin(path, "/");
 	if (!path_to_cmd)
-		ft_malloc_error(pipex);
+		ft_exit_error("malloc", pipex);
 	cmd_path = ft_strjoin(path_to_cmd, pipex->cmd_args[index][0]);
 	if (!cmd_path)
 	{
 		free(path_to_cmd);
-		ft_malloc_error(pipex);
+		ft_exit_error("malloc", pipex);
 	}
 	if (path_to_cmd)
 		free(path_to_cmd);

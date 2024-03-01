@@ -6,7 +6,7 @@
 /*   By: uahmed <uahmed@student.hive.fi>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/22 13:02:52 by uahmed            #+#    #+#             */
-/*   Updated: 2024/02/28 16:36:51 by uahmed           ###   ########.fr       */
+/*   Updated: 2024/03/01 17:00:55 by uahmed           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,19 +15,8 @@
 void	ft_free_pipex(t_pipex *pipex)
 {
 	int	ind;
-	int i;
-	int j;
 
 	ind = -1;
-	// ft_print_pipex(pipex);
-	i = -1;
-	j = 0;
-	while (pipex->cmd_args[++i])
-	{
-		j = -1;
-		while (pipex->cmd_args[i][++j])
-			printf("cmd_args in PIPEX: %s\n", pipex->cmd_args[i][j]);
-	}
 	if (pipex->cmd_args)
 	{
 		while (pipex->cmd_args[++ind])
@@ -43,11 +32,10 @@ void	ft_free_pipex(t_pipex *pipex)
 void	ft_initialize_pipex(t_pipex *pipex, int tot_cmds)
 {
 	pipex->here_doc = false;
-	pipex->bonus = false;
 	pipex->fd_in = 0;
 	pipex->fd_out = 0;
+	pipex->idx = -1;
 	pipex->paths = NULL;
-	// pipex->temp_cmds = NULL;
 	pipex->cmds = NULL;
 	pipex->cmd_args = NULL;
 	pipex->tot_cmds = tot_cmds;
@@ -56,8 +44,10 @@ void	ft_initialize_pipex(t_pipex *pipex, int tot_cmds)
 void	ft_print_pipex(t_pipex *pipex)
 {
 	int i;
+	int j;
 
 	i = -1;
+	j = -1;
 	while (pipex->cmds[++i])
 		printf("cmd in PIPEX: %s\n", pipex->cmds[i]);
 	i = -1;
@@ -81,14 +71,12 @@ void	ft_print_args(int argc, char **args)
 int	main(int argc, char *argv[], char **envp)
 {
 	t_pipex	pipex;
-
-	// ft_print_args(argc, argv);
+	
 	if (argc > 1)
 	{
 		ft_initialize_pipex(&pipex, argc - 3);
 		ft_validate_files(argc - 1, argv, &pipex);
 		ft_save_commands(argv, envp, &pipex);
-		// ft_save_args(argv, &pipex);
 		ft_execute(&pipex);
 		ft_free_pipex(&pipex);
 	}
