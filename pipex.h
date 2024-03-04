@@ -29,11 +29,10 @@ typedef struct s_pipex
 {
 	int		fd_in;
 	int		fd_out;
-	int		idx;
+	int		start;
 	char	**paths;
 	char	**cmds;
 	char	***cmd_args;
-	t_bool	here_doc;
 	int		tot_cmds;
 }			t_pipex;
 
@@ -41,7 +40,7 @@ typedef struct s_pipex
 void	ft_print_pipex(t_pipex *pipex);
 
 
-void		ft_free(char **s);
+void		ft_freestrs(char **s);
 void		ft_free_pipex(t_pipex *pipex);
 void		ft_initialize_pipex(t_pipex *pipex, int tot_cmds);
 
@@ -50,9 +49,8 @@ void		ft_child(t_pipex *pipex, int *fds);
 void		ft_parent(t_pipex *pipex, int *fds);
 int			ft_absolute_path(char *cmd);
 char		**ft_paths(char *cmds[], char **envp, int tot_cmds);
-void		ft_free(char **s);
 
-void		ft_validate_files(int argc, char **args, t_pipex *pipex);
+void	ft_validate_files(char *infile, char *outfile, t_pipex *pipex);
 char		*ft_give_path(char **envp);
 void		ft_save_commands(char **args, char **envp, t_pipex *pipex);
 void		ft_valid_command(t_pipex *pipex, int i);

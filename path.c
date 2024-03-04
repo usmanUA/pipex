@@ -12,7 +12,7 @@
 
 #include "pipex.h"
 
-void	ft_free(char **s)
+void	ft_freestrs(char **s)
 {
 	int	i;
 

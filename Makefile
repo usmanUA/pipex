@@ -15,7 +15,9 @@ B_FILES = pipex_bonus.c \
 		  exec_cmds_bonus.c \
 		  check_input.c \
 		  errors.c \
-		  path.c
+		  path.c \
+		  get_next_line/get_next_line.c \
+		  get_next_line/get_next_line_utils.c
 
 OBJS = $(FILES:.c=.o)
 
@@ -30,7 +32,6 @@ $(NAME): $(OBJS) $(LIBFT)
 	@(echo "$(GREEN)Creating Object File: $@$(RESET)" && cc $(flags) -c $< -o $@)
 	
 bonus: $(B_OBJS) $(LIBFT)
-	@rm $(NAME)
 	@(echo "$(GREEN)Creating The Executable:   $(NAME)$(RESET)" && cc $(B_OBJS) libft/$(LIBFT) -o $(NAME))
 
 $(LIBFT):

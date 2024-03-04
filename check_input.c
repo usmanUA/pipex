@@ -12,14 +12,15 @@
 
 #include "pipex.h"
 
-void	ft_validate_files(int argc, char **args, t_pipex *pipex)
+void	ft_validate_files(char *infile, char *outfile, t_pipex *pipex)
 {
-	pipex->fd_in = open(args[1], O_RDONLY);
+
+	pipex->fd_in = open(infile, O_RDONLY);
 	if (pipex->fd_in == -1)
-		ft_filerror(args[1]);
-	pipex->fd_out = open(args[argc], O_WRONLY | O_CREAT, 0644);
+		ft_filerror(infile);
+	pipex->fd_out = open(outfile, O_WRONLY | O_CREAT| O_APPEND, 0644);
 	if (pipex->fd_out == -1)
-		ft_filerror(args[argc]);
+		ft_filerror(outfile);
 }
 
 char	*ft_give_path(char **envp)
@@ -51,28 +52,29 @@ void	ft_malloc_struct(t_pipex *pipex, char ***cmds, char ****cmd_args)
 
 void	ft_save_commands(char **args, char **envp, t_pipex *pipex)
 {
-	if (pipex->here_doc)
-		pipex->idx = 1;
+	int i;
+
+	i = -1;
 	ft_malloc_struct(pipex, &pipex->cmds, &pipex->cmd_args);
 	pipex->paths = ft_split(ft_give_path(envp), ':');
-	while (++pipex->idx < pipex->tot_cmds)
+	while (++i < pipex->tot_cmds)
 	{
-		pipex->cmd_args[pipex->idx] = ft_split(args[pipex->idx + 2], ' ');
-		if (ft_absolute_path(pipex->cmd_args[pipex->idx][0]))
+		pipex->cmd_args[i] = ft_split(args[i + pipex->start], ' ');
+		if (ft_absolute_path(pipex->cmd_args[i][0]))
 		{
-			if (!access(pipex->cmd_args[pipex->idx][0], F_OK | X_OK))
-				pipex->cmds[pipex->idx] = ft_strdup(pipex->cmd_args[pipex->idx][0]);
+			if (!access(pipex->cmd_args[i][0], F_OK | X_OK))
+				pipex->cmds[i] = ft_strdup(pipex->cmd_args[i][0]);
 			else
 			{
-				pipex->cmds[pipex->idx] = NULL;
-				ft_cmd_error_exit(pipex->cmd_args[pipex->idx][0], pipex);
+				pipex->cmds[i] = NULL;
+				ft_cmd_error_exit(pipex->cmd_args[i][0], pipex);
 			}
 		}
 		else
-			ft_valid_command(pipex, pipex->idx);
+			ft_valid_command(pipex, i);
 	}
-	pipex->cmds[pipex->idx] = NULL;
-	pipex->cmd_args[pipex->idx] = NULL;	
+	pipex->cmds[i] = NULL;
+	pipex->cmd_args[i] = NULL;	
 }
 
 void	ft_valid_command(t_pipex *pipex, int index)

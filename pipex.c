@@ -20,21 +20,20 @@ void	ft_free_pipex(t_pipex *pipex)
 	if (pipex->cmd_args)
 	{
 		while (pipex->cmd_args[++ind])
-			ft_free(pipex->cmd_args[ind]);
+			ft_freestrs(pipex->cmd_args[ind]);
 		free(pipex->cmd_args);
 	}
 	if (pipex->paths)
-		ft_free(pipex->paths);
+		ft_freestrs(pipex->paths);
 	if (pipex->cmds)
-		ft_free(pipex->cmds);
+		ft_freestrs(pipex->cmds);
 }
 
 void	ft_initialize_pipex(t_pipex *pipex, int tot_cmds)
 {
-	pipex->here_doc = false;
 	pipex->fd_in = 0;
 	pipex->fd_out = 0;
-	pipex->idx = -1;
+	pipex->start = 2;
 	pipex->paths = NULL;
 	pipex->cmds = NULL;
 	pipex->cmd_args = NULL;
@@ -72,13 +71,16 @@ int	main(int argc, char *argv[], char **envp)
 {
 	t_pipex	pipex;
 	
-	if (argc > 1)
+	if (argc == 5)
 	{
 		ft_initialize_pipex(&pipex, argc - 3);
-		ft_validate_files(argc - 1, argv, &pipex);
+		ft_validate_files(argv[1], argv[argc-1], &pipex);
 		ft_save_commands(argv, envp, &pipex);
 		ft_execute(&pipex);
 		ft_free_pipex(&pipex);
+		return (0);
 	}
+	ft_putstr_fd("Error\n", 1);
+	ft_putstr_fd("Usage: ./pipex <infile> <cmd1> <cmd2> <outfile>\n", 1);
 	return (0);
 }

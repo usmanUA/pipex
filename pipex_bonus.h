@@ -16,6 +16,7 @@
 # include "pipex.h"
 # include "fcntl.h"
 # include "libft/libft.h"
+# include "get_next_line/get_next_line.h"
 # include "stdio.h"
 # include "sys/wait.h"
 # include "unistd.h"
