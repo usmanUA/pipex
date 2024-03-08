@@ -6,28 +6,25 @@
 /*   By: uahmed <uahmed@student.hive.fi>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/22 10:51:13 by uahmed            #+#    #+#             */
-/*   Updated: 2024/02/28 16:39:17 by uahmed           ###   ########.fr       */
+/*   Updated: 2024/03/08 12:51:57 by uahmed           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "pipex.h"
 
-void	ft_freestrs(char **s)
+char	*ft_give_path(char **envp)
 {
-	int	i;
+	char	*path;
 
-	i = -1;
-	if (s)
+	path = NULL;
+	while (*envp)
 	{
-		while (s[++i])
-			free(s[i]);
-		free(s);
+		if (!ft_strncmp(*envp, "PATH=", 5))
+		{
+			path = *envp;
+			break ;
+		}
+		envp++;
 	}
-}
-
-int	ft_absolute_path(char *cmd)
-{
-	if (!ft_strncmp(cmd, "/", 1) || !ft_strncmp(cmd, "./", 2))
-		return (1);
-	return (0);
+	return (&path[5]);
 }

@@ -1,27 +1,28 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   ft_lstadd_front_bonus.c                            :+:      :+:    :+:   */
+/*   ft_ispresent.c                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: uahmed <uahmed@student.hive.fi>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2023/10/25 16:52:56 by uahmed            #+#    #+#             */
-/*   Updated: 2024/03/05 15:36:52 by uahmed           ###   ########.fr       */
+/*   Created: 2024/03/05 10:54:34 by uahmed            #+#    #+#             */
+/*   Updated: 2024/03/05 15:39:09 by uahmed           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "libft.h"
 
-void	ft_lstadd_front(t_list **lst, t_list *new)
+size_t	ft_ispresent(char *str, char c)
 {
-	if (!lst && new)
+	size_t	ind;
+	size_t	len;
+
+	ind = -1;
+	len = ft_strlen(str);
+	while (++ind < len)
 	{
-		*lst = new;
-		return ;
+		if (str[ind] == c)
+			return (1);
 	}
-	if (lst && new)
-	{
-		new->next = *lst;
-		*lst = new;
-	}
+	return (0);
 }

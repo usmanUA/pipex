@@ -13,7 +13,7 @@
 
 void	ft_striteri(char *s, void (*f)(unsigned int, char *))
 {
-	int		ind;
+	int	ind;
 
 	if (!s || !f)
 		return ;

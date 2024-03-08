@@ -1,27 +1,32 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   ft_lstadd_front_bonus.c                            :+:      :+:    :+:   */
+/*   ft_free.c                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: uahmed <uahmed@student.hive.fi>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2023/10/25 16:52:56 by uahmed            #+#    #+#             */
-/*   Updated: 2024/03/05 15:36:52 by uahmed           ###   ########.fr       */
+/*   Created: 2024/03/04 12:43:00 by uahmed            #+#    #+#             */
+/*   Updated: 2024/03/04 14:27:50 by uahmed           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "libft.h"
+#include "stdio.h"
 
-void	ft_lstadd_front(t_list **lst, t_list *new)
+void	ft_free(char **s, int index)
 {
-	if (!lst && new)
+	int	i;
+
+	i = -1;
+	if (index)
 	{
-		*lst = new;
-		return ;
+		while (++i < index)
+			free(s[i]);
 	}
-	if (lst && new)
+	else
 	{
-		new->next = *lst;
-		*lst = new;
+		while (s[++i])
+			free(s[i]);
 	}
+	free(s);
 }

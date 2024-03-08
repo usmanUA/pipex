@@ -6,113 +6,138 @@
 /*   By: uahmed <uahmed@student.hive.fi>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/27 12:05:21 by uahmed            #+#    #+#             */
-/*   Updated: 2024/03/01 17:05:06 by uahmed           ###   ########.fr       */
+/*   Updated: 2024/03/08 17:23:40 by uahmed           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "pipex.h"
 
-void	ft_validate_files(char *infile, char *outfile, t_pipex *pipex)
+void	ft_validate_files(char *infile, char *outfile, t_pipex *ppx)
 {
-
-	pipex->fd_in = open(infile, O_RDONLY);
-	if (pipex->fd_in == -1)
-		ft_filerror(infile);
-	pipex->fd_out = open(outfile, O_WRONLY | O_CREAT| O_APPEND, 0644);
-	if (pipex->fd_out == -1)
-		ft_filerror(outfile);
-}
-
-char	*ft_give_path(char **envp)
-{
-	char	*path;
-
-	path = NULL;
-	while (*envp)
+	ppx->fd_in = open(infile, O_RDONLY);
+	if (ppx->fd_in == -1)
+		ft_filerror(errno, ppx, infile, 1);
+	if (ppx->here_doc)
 	{
-		if (!ft_strncmp(*envp, "PATH=", 5))
-		{
-			path = *envp;
-			break ;
-		}
-		envp++;
+		// write(1, "here\n", 5);
+		ppx->fd_out = open(outfile, O_WRONLY | O_CREAT | O_APPEND, 0666);
 	}
-	return (&path[5]);
+	else
+	{
+		write(1, "here\n", 5);
+		ppx->fd_out = open(outfile, O_WRONLY | O_CREAT| O_TRUNC, 0666);
+	}
+	if (ppx->fd_out == -1)
+		ft_filerror(errno, ppx, outfile, 1);
 }
 
-void	ft_malloc_struct(t_pipex *pipex, char ***cmds, char ****cmd_args)
+void	ft_malloc_struct(t_pipex *pipex, char ***cmds, char ****cmd_args)//), int **cmds_status)
 {
 	*cmds = (char **)malloc((pipex->tot_cmds + 1) * sizeof(char *));
 	if (!(*cmds))
-		ft_exit_error("malloc", pipex);
+		ft_exit_error(pipex, 1, EXIT_FAILURE);
 	*cmd_args = (char ***)malloc((pipex->tot_cmds + 1) * sizeof(char **));
 	if (!(*cmd_args))
-		ft_exit_error("malloc", pipex);
+		ft_exit_error(pipex, 1, EXIT_FAILURE);
 }
 
-void	ft_save_commands(char **args, char **envp, t_pipex *pipex)
+void	ft_handle_absolute(t_pipex *ppx)
 {
-	int i;
+	int fd;
 
-	i = -1;
-	ft_malloc_struct(pipex, &pipex->cmds, &pipex->cmd_args);
-	pipex->paths = ft_split(ft_give_path(envp), ':');
-	while (++i < pipex->tot_cmds)
+	fd = -2;
+	if (!access(ppx->cmd_args[ppx->idx][0], F_OK))
 	{
-		pipex->cmd_args[i] = ft_split(args[i + pipex->start], ' ');
-		if (ft_absolute_path(pipex->cmd_args[i][0]))
+		fd = open(ppx->cmd_args[ppx->idx][0], O_DIRECTORY);
+		if (fd != -1)
 		{
-			if (!access(pipex->cmd_args[i][0], F_OK | X_OK))
-				pipex->cmds[i] = ft_strdup(pipex->cmd_args[i][0]);
-			else
-			{
-				pipex->cmds[i] = NULL;
-				ft_cmd_error_exit(pipex->cmd_args[i][0], pipex);
-			}
+			close(fd);
+			ft_cmd_error(ppx->cmd_args[ppx->idx][0], 2);
+			ppx->cmds[ppx->idx] = ft_strdup("DIR");
+		}
+		else if (access(ppx->cmd_args[ppx->idx][0], X_OK) == -1)
+		{
+			ft_cmd_error(ppx->cmd_args[ppx->idx][0], 0);
+			ppx->cmds[ppx->idx] = ft_strdup("NO_EXEC");
 		}
 		else
-			ft_valid_command(pipex, i);
+			ppx->cmds[ppx->idx] = ft_strdup(ppx->cmd_args[ppx->idx][0]);	
 	}
-	pipex->cmds[i] = NULL;
-	pipex->cmd_args[i] = NULL;	
+	else
+	{
+		ppx->cmds[ppx->idx] = NULL;
+		ft_cmd_error(ppx->cmd_args[ppx->idx][0], 1);
+	}
 }
 
-void	ft_valid_command(t_pipex *pipex, int index)
+void	ft_save_commands(char **args, char **envp, t_pipex *ppx)
+{
+	int fd;
+	
+	fd = -2;
+	ft_malloc_struct(ppx, &ppx->cmds, &ppx->cmd_args);
+	ppx->paths = ft_split(ft_give_path(envp), NULL, ':', 0);
+	while (++ppx->idx < ppx->tot_cmds)
+	{
+		if (args[ppx->idx + ppx->start][0] == '\0')
+		{
+			ft_cmd_error("", 1);
+			ppx->cmd_args[ppx->idx] = NULL;
+			ppx->cmds[ppx->idx] = NULL;
+			continue ;
+		}
+		ppx->cmd_args[ppx->idx] = ft_split(args[ppx->idx + ppx->start], "\'\"", ' ', 1);
+		if (ft_ispresent(ppx->cmd_args[ppx->idx][0], '/'))
+			ft_handle_absolute(ppx);
+		else
+			ft_valid_command(ppx);
+	}
+	ppx->cmds[ppx->idx] = NULL;
+	ppx->cmd_args[ppx->idx] = NULL;
+}
+
+void	ft_valid_command(t_pipex *ppx)
 {
 	char	*cmd_path;
 	int		i;
 
 	i = 0;
 	cmd_path = NULL;
-	while (pipex->paths[i])
+	while (ppx->paths[i])
 	{
-		cmd_path = ft_join_path(pipex->paths[i], pipex, index);
+		cmd_path = ft_join_path(ppx->paths[i], ppx);
 		i++;
-		if (!access(cmd_path, F_OK | X_OK))
+		if (!access(cmd_path, F_OK))
 		{
-			pipex->cmds[index] = cmd_path;
+			if (access(cmd_path, X_OK) == -1)
+			{
+				ft_cmd_error(ppx->cmd_args[ppx->idx][0], 0);
+				ppx->cmds[ppx->idx] = ft_strdup("NO_EXEC");
+			}
+			else
+				ppx->cmds[ppx->idx] = cmd_path;
 			return ;
 		}
 		free(cmd_path);
 	}
-	pipex->cmd_args[index+1] = NULL;
-	pipex->cmds[index] = NULL;
-	ft_cmd_error_exit(pipex->cmd_args[index][0], pipex);
+	ppx->cmds[ppx->idx] = NULL;
+	ppx->cmd_args[ppx->idx + 1] = NULL; // WHY? idx = 0, but idx = 1 is file, why corrupt idx = 1?
+	ft_cmd_error(ppx->cmd_args[ppx->idx][0], 1);
 }
 
-char	*ft_join_path(char *path, t_pipex *pipex, int index)
+char	*ft_join_path(char *path, t_pipex *ppx)
 {
 	char	*path_to_cmd;
 	char	*cmd_path;
 
 	path_to_cmd = ft_strjoin(path, "/");
 	if (!path_to_cmd)
-		ft_exit_error("malloc", pipex);
-	cmd_path = ft_strjoin(path_to_cmd, pipex->cmd_args[index][0]);
+		ft_exit_error(ppx, 1, EXIT_FAILURE);
+	cmd_path = ft_strjoin(path_to_cmd, ppx->cmd_args[ppx->idx][0]);
 	if (!cmd_path)
 	{
 		free(path_to_cmd);
-		ft_exit_error("malloc", pipex);
+		ft_exit_error(ppx, 1, EXIT_FAILURE);
 	}
 	if (path_to_cmd)
 		free(path_to_cmd);

@@ -1,27 +1,21 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   ft_lstadd_front_bonus.c                            :+:      :+:    :+:   */
+/*   ft_isspace.c                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: uahmed <uahmed@student.hive.fi>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2023/10/25 16:52:56 by uahmed            #+#    #+#             */
-/*   Updated: 2024/03/05 15:36:52 by uahmed           ###   ########.fr       */
+/*   Created: 2024/02/19 15:51:19 by uahmed            #+#    #+#             */
+/*   Updated: 2024/03/04 13:10:49 by uahmed           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "libft.h"
 
-void	ft_lstadd_front(t_list **lst, t_list *new)
+int	ft_isspace(int c)
 {
-	if (!lst && new)
-	{
-		*lst = new;
-		return ;
-	}
-	if (lst && new)
-	{
-		new->next = *lst;
-		*lst = new;
-	}
+	if (c == '\t' || c == ' ' || c == '\v' || c == '\f' || c == '\n'
+		|| c == '\r')
+		return (1);
+	return (0);
 }

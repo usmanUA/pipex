@@ -1,5 +1,5 @@
 flags = -Wall -Wextra -Werror
-LIBFT = libft.a
+LIBFTPRINTF = libftprintf.a
 NAME = pipex
 GREEN = \033[0;32m
 RED = \033[0;31m
@@ -10,12 +10,14 @@ FILES = pipex.c \
 		exec_cmds.c \
 		errors.c \
 		path.c \
+		pipex_utils.c \
 
 B_FILES = pipex_bonus.c \
 		  exec_cmds_bonus.c \
 		  check_input.c \
 		  errors.c \
 		  path.c \
+		  pipex_utils.c \
 		  get_next_line/get_next_line.c \
 		  get_next_line/get_next_line_utils.c
 
@@ -25,26 +27,26 @@ B_OBJS = $(B_FILES:.c=.o)
 
 all: $(NAME)
 
-$(NAME): $(OBJS) $(LIBFT)
-	@(echo "$(GREEN)Creating The Executable:   $(NAME)$(RESET)" && cc $(OBJS) libft/$(LIBFT) -o $(NAME))
+$(NAME): $(OBJS) $(LIBFTPRINTF)
+	@(echo "$(GREEN)Creating The Executable:   $(NAME)$(RESET)" && cc $(OBJS) ft_printf/$(LIBFTPRINTF) -o $(NAME))
 	
 %.o: %.c
 	@(echo "$(GREEN)Creating Object File: $@$(RESET)" && cc $(flags) -c $< -o $@)
 	
-bonus: $(B_OBJS) $(LIBFT)
-	@(echo "$(GREEN)Creating The Executable:   $(NAME)$(RESET)" && cc $(B_OBJS) libft/$(LIBFT) -o $(NAME))
+bonus: $(B_OBJS) $(LIBFTPRINTF)
+	@(echo "$(GREEN)Creating The Executable:   $(NAME)$(RESET)" && cc $(B_OBJS) ft_printf/$(LIBFTPRINTF) -o $(NAME))
 
-$(LIBFT):
-	@$(MAKE) -C libft
+$(LIBFTPRINTF):
+	@$(MAKE) -C ft_printf
 
 clean:
-	@echo "$(RED)Cleaning Object Files for libft and push_swap$(RESET)"
-	@$(MAKE) -C libft clean
+	@echo "$(RED)Cleaning Object Files for ft_printf and push_swap$(RESET)"
+	@$(MAKE) -C ft_printf clean
 	@rm -rf $(OBJS) $(B_OBJS)
 
 fclean: clean
-	@echo "$(RED)Removing   $(LIBFT) and $(NAME)$(RESET)"
-	@rm -rf libft/$(LIBFT)
+	@echo "$(RED)Removing   $(LIBFTPRINTF) and $(NAME)$(RESET)"
+	@rm -rf ft_printf/$(LIBFTPRINTF)
 	@rm -rf $(NAME) $(B_NAME)
 
 re: fclean all
