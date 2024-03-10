@@ -12,7 +12,7 @@
 
 #include "get_next_line.h"
 
-void	ft_free(char *s)
+void	ft_freestr(char *s)
 {
 	if (s != NULL)
 	{
@@ -67,11 +67,11 @@ char	*ft_writeline(char *lines, char *line)
 	new_line = malloc(lines_len + ft_strlen(line) + 1);
 	if (!new_line)
 	{
-		ft_free(line);
+		ft_freestr(line);
 		return (NULL);
 	}
 	ft_copylines(&new_line, line, lines);
-	ft_free(line);
+	ft_freestr(line);
 	return (new_line);
 }
 

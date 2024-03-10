@@ -24,15 +24,22 @@ void	ft_validate_files(char *infile, char *outfile, t_pipex *ppx)
 	}
 	else
 	{
-		write(1, "here\n", 5);
+		// write(1, "here\n", 5);
 		ppx->fd_out = open(outfile, O_WRONLY | O_CREAT| O_TRUNC, 0666);
 	}
 	if (ppx->fd_out == -1)
 		ft_filerror(errno, ppx, outfile, 1);
 }
 
-void	ft_malloc_struct(t_pipex *pipex, char ***cmds, char ****cmd_args)//), int **cmds_status)
+static void	ft_malloc_struct(t_pipex *pipex, char ***cmds, char ****cmd_args, int idx)
 {
+	if (idx)
+	{
+		pipex->cmd_args[pipex->idx] = (char **)malloc(2 *  sizeof(char *));
+		if (!pipex->cmd_args[pipex->idx])
+			ft_exit_error(pipex, 1, EXIT_FAILURE);
+		return ;
+	}
 	*cmds = (char **)malloc((pipex->tot_cmds + 1) * sizeof(char *));
 	if (!(*cmds))
 		ft_exit_error(pipex, 1, EXIT_FAILURE);
@@ -48,7 +55,7 @@ void	ft_handle_absolute(t_pipex *ppx)
 	fd = -2;
 	if (!access(ppx->cmd_args[ppx->idx][0], F_OK))
 	{
-		fd = open(ppx->cmd_args[ppx->idx][0], O_DIRECTORY);
+		fd = open(ppx->cmd_args[ppx->idx][0], __O_DIRECTORY);
 		if (fd != -1)
 		{
 			close(fd);
@@ -70,22 +77,43 @@ void	ft_handle_absolute(t_pipex *ppx)
 	}
 }
 
+int	ft_nullstr_spaces(t_pipex *ppx, char **args)
+{
+	int i;
+
+	i = -1;
+	if (args[ppx->idx+ppx->start][0] == '\0')
+	{
+		ft_cmd_error("", 1);
+		ppx->cmds[ppx->idx] = NULL;
+		ppx->cmd_args[ppx->idx] = NULL;
+		return (1) ;
+	}
+	else
+	{
+		while (args[ppx->idx + ppx->start][++i])
+		{
+			if (!ft_isspace(args[ppx->idx + ppx->start][i]))
+				return (0);
+		}
+		ft_cmd_error(args[ppx->idx+ppx->start], 1);
+		ppx->cmds[ppx->idx] = ft_strdup(args[ppx->idx+ppx->start]);
+		ft_malloc_struct(ppx, NULL, NULL, 1);
+		ppx->cmd_args[ppx->idx][0] = ft_strdup(args[ppx->idx+ppx->start]);
+		ppx->cmd_args[ppx->idx][1] = NULL;
+		return (1);
+	}
+	return (0);
+}
+
 void	ft_save_commands(char **args, char **envp, t_pipex *ppx)
 {
-	int fd;
-	
-	fd = -2;
-	ft_malloc_struct(ppx, &ppx->cmds, &ppx->cmd_args);
+	ft_malloc_struct(ppx, &ppx->cmds, &ppx->cmd_args, 0);
 	ppx->paths = ft_split(ft_give_path(envp), NULL, ':', 0);
 	while (++ppx->idx < ppx->tot_cmds)
 	{
-		if (args[ppx->idx + ppx->start][0] == '\0')
-		{
-			ft_cmd_error("", 1);
-			ppx->cmd_args[ppx->idx] = NULL;
-			ppx->cmds[ppx->idx] = NULL;
+		if (ft_nullstr_spaces(ppx, args))
 			continue ;
-		}
 		ppx->cmd_args[ppx->idx] = ft_split(args[ppx->idx + ppx->start], "\'\"", ' ', 1);
 		if (ft_ispresent(ppx->cmd_args[ppx->idx][0], '/'))
 			ft_handle_absolute(ppx);
@@ -101,12 +129,11 @@ void	ft_valid_command(t_pipex *ppx)
 	char	*cmd_path;
 	int		i;
 
-	i = 0;
+	i = -1;
 	cmd_path = NULL;
-	while (ppx->paths[i])
+	while (ppx->paths[++i])
 	{
 		cmd_path = ft_join_path(ppx->paths[i], ppx);
-		i++;
 		if (!access(cmd_path, F_OK))
 		{
 			if (access(cmd_path, X_OK) == -1)

@@ -15,7 +15,6 @@
 
 # include "fcntl.h"
 # include "libft/libft.h"
-# include "ft_printf/ft_printf.h"
 # include "stdio.h"
 # include "sys/wait.h"
 # include "unistd.h"

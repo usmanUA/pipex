@@ -25,7 +25,7 @@
 #  define BUFFER_SIZE 42
 # endif
 
-void	ft_free(char *s);
+void	ft_freestr(char *s);
 size_t	ft_strlen(const char *s);
 char	*ft_writeline(char *lines, char *line);
 size_t	ft_newline(char *s);

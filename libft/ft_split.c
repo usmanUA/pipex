@@ -63,9 +63,12 @@ static size_t	ft_wordlen(char const *s, char k, int flag)
 	return (wl + spaces);
 }
 
-static char	*ft_implement_split(t_var *vars, const char **s, char *set, char c, int flag)
+static char	*ft_implement_split(t_var *vars, const char **s, char *set, char c)
 {
-	if (!flag)
+	char	*substr;
+
+	substr = NULL;
+	if (!vars->flag)
 	{
 		while (**s == c && **s)
 			(*s)++;
@@ -77,36 +80,39 @@ static char	*ft_implement_split(t_var *vars, const char **s, char *set, char c, 
 			c = **s;
 			(*s)++;
 		}
-		vars->word_l = ft_wordlen(*s, c, flag);
-		return (ft_substr(*s, 0, vars->word_l));
+		vars->word_l = ft_wordlen(*s, c, vars->flag);
+		substr = ft_substr(*s, 0, vars->word_l);
+		(*s) += vars->word_l;
+		if (vars->flag && **s)
+			(*s)++;
 	}
-	return (NULL);
+	return (substr);
 }
 
 char	**ft_split(char const *s, char *set, char c, int flag)
 {
 	t_var	vars;
 
+	vars.flag = flag;
 	if (!s)
 		return (NULL);
-	vars.str = (char **)malloc(sizeof(char *) * (ft_totwords(s, set, c, flag)+1));
+	vars.str = (char **)malloc(sizeof(char *) * (ft_totwords(s,
+					set, c, flag) + 1));
 	if (!vars.str)
 		return (0);
 	vars.ind = 0;
 	vars.word_l = 0;
 	while (*s)
 	{
-		vars.str[vars.ind] = ft_implement_split(&vars, &s, set, c, flag);
+		vars.str[vars.ind] = ft_implement_split(&vars, &s, set, c);
 		if (!vars.str[vars.ind])
 		{
 			ft_free(vars.str, vars.ind + 1);
 			return (0);
 		}
-		s += vars.word_l;
 		vars.ind++;
 		if (set && ft_ispresent(set, *s) && *(s + 1) == '\0')
 			s++;
-		flag = 0;
 	}
 	vars.str[vars.ind] = 0;
 	return (vars.str);

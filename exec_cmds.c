@@ -32,10 +32,12 @@ int	ft_execute(t_pipex *pipex, char **envp)
 	{
 		close(fds[1]);
 		ft_second_child(pipex, fds, &status, envp);
+		waitpid(pid, NULL, 0);
 	}
 	if (status != 127 && status != 126)
 		status = ft_status(status);
 	ft_free_pipex(pipex);
+	// system("leaks pipex");
 	return (status);
 }
 

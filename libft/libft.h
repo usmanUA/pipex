@@ -21,6 +21,7 @@ typedef struct s_var
 	char			**str;
 	size_t			ind;
 	size_t			word_l;
+	int				flag;
 }					t_var;
 
 typedef struct s_list
