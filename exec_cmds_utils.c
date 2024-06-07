@@ -1,21 +1,22 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   pipex_bonus.h                                      :+:      :+:    :+:   */
+/*   exec_cmds_utils.c                                  :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: uahmed <uahmed@student.hive.fi>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/02/22 10:49:17 by uahmed            #+#    #+#             */
-/*   Updated: 2024/03/12 12:16:08 by uahmed           ###   ########.fr       */
+/*   Created: 2024/03/15 16:28:39 by uahmed            #+#    #+#             */
+/*   Updated: 2024/03/15 16:28:53 by uahmed           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef PIPEX_BONUS_H
-# define PIPEX_BONUS_H
+#include "pipex.h"
 
-# include "get_next_line/get_next_line.h"
-# include "pipex.h"
+void	ft_wait_pids(t_pipex *ppx, int index)
+{
+	int	i;
 
-int	ft_execute_bonus(t_pipex *ppx, char **envp);
-
-#endif
+	i = -1;
+	while (++i < index)
+		waitpid(ppx->pids[i], NULL, 0);
+}
